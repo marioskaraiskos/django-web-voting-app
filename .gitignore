@@ -1,5 +1,53 @@
-venv
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-db.sqlite3
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-manage.py
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.mo
+*.swp
+*~
+staticfiles/
+media/
+
+# Django migrations
+**/migrations/__pycache__/
+**/migrations/*.py[cod]
+
+# local env files
+.env
+.env.*
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/

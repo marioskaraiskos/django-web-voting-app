@@ -1,6 +1,7 @@
 from django.urls import path, include
-from . import views
 import debug_toolbar
+from . import views
+
 
 
 
@@ -17,4 +18,5 @@ urlpatterns = [
     # ex: /polls/5/vote/
     path("<int:question_id>/vote/", views.vote, name="vote"),
     path('__debug__/', include(debug_toolbar.urls)),
+    path("register/", views.register_view, name="register"),
 ] 

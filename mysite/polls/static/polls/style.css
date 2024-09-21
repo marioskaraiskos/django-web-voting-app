@@ -1,9 +1,9 @@
 li a {
-    color: blue;
+    color: black;
 }
 
 body {
-    background: yellow url("images/background.jpeg") no-repeat;
+    background: white;
     background-size: cover;
 }
 #links {

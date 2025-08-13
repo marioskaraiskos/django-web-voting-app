@@ -1,31 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Vote</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    .vote-container { max-width: 420px; margin: 2rem auto; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; }
-    .actions { margin-top: 0.75rem; }
-    input[type="text"] { width: 100%; padding: 0.6rem; }
-    button { padding: 0.6rem 1rem; cursor: pointer; }
-  </style>
+  <meta charset="UTF-8">
+  <title>Vote Result</title>
 </head>
 <body>
-  <div class="vote-container">
-    <h1>Vote on question {{ question_id }}</h1>
-
-    <form method="post">
-      {% csrf_token %}
-      <div id="vote-input">
-        <label for="vote">Your vote</label>
-        <input id="vote" name="vote" type="text" placeholder="Type your choice..." required />
-      </div>
-
-      <div class="actions">
-        <button type="submit">Submit Vote</button>
-      </div>
-    </form>
-  </div>
+  <p>You voted: {{ vote }}</p>
 </body>
 </html>

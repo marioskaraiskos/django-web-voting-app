@@ -1,16 +1,63 @@
-web voting app made by django
+Django Web Voting App
 
-HOW TO USE: 
+A simple web voting application built with Django.
 
-type git clone https://github.com/marioskaraiskos/django-web-voting-app.git in ur terminal
+How to Use
 
-create a virtual environment using python -m venv venv for windows
+Clone the repository
 
-pip install -r requirements.txt (to download nesecary dependencies)
+git clone https://github.com/marioskaraiskos/django-web-voting-app.git
+cd django-web-voting-app
 
-venv/Scripts/Activate (to activate the venv)
 
-cd mysite (do into the project root)
+Create a virtual environment
+For Windows:
 
-python manage.py runserver (to run the server!!)
+python -m venv venv
 
+
+For macOS/Linux:
+
+python3 -m venv venv
+
+
+Activate the virtual environment
+
+Windows:
+
+venv\Scripts\activate
+
+
+macOS/Linux:
+
+source venv/bin/activate
+
+
+Install dependencies
+
+pip install -r requirements.txt
+
+
+Navigate to the project root
+
+cd mysite
+
+
+Run database migrations
+
+python manage.py migrate
+
+
+Start the development server
+
+python manage.py runserver
+
+
+Open your browser
+Visit http://127.0.0.1:8000 to use the app.
+
+Optional
+
+Create a superuser to access the Django admin:
+
+python manage.py createsuperuser

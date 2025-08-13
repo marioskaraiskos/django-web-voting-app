@@ -7,6 +7,11 @@ from django.utils import timezone
 from django.contrib.auth import login
 from .models import Choice, Question
 from .forms import UserRegistrationForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import logout
+
 
 
 class IndexView(generic.ListView):
@@ -38,8 +43,12 @@ class ResultsView(generic.DetailView):
 
 
 def vote(request, question_id):
-    return HttpResponse("You're voting on question %s." % question_id)
-
+    if request.method == "POST":
+        user_vote = request.POST.get("vote")
+        # TODO: save/process the vote here
+        return HttpResponse(f"Thanks! You voted: {user_vote} on question {question_id}.")
+    # GET -> show the input
+    return render(request, "vote.html", {"question_id": question_id})
 
 def register_view(request):
     if request.method == 'POST':
@@ -54,3 +63,22 @@ def register_view(request):
         form = UserRegistrationForm()
 
     return render(request, 'polls/register.html', {'form': form})
+
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)  # Log the user in
+                return redirect('polls:index')  # Redirect to home/index page
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'polls/login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('polls:index')  # or wherever you want

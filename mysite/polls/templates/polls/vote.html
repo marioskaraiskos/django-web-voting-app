@@ -1,10 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Vote Result</title>
+    <meta charset="UTF-8">
+    <title>Vote Results</title>
 </head>
-<body>
-  <p>You voted: {{ vote }}</p>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; padding: 40px;">
+
+    <div style="max-width: 700px; margin: auto; background-color: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.1);">
+        <h1 style="text-align: center; color: #4CAF50;">Results for: "{{ question.question_text }}"</h1>
+
+        <p style="font-size: 18px; margin-top: 20px;">
+            <strong>You voted:</strong> <span style="color: #ff5722;">{{ user_choice_text }}</span>
+        </p>
+
+        <h2 style="margin-top: 30px; border-bottom: 2px solid #4CAF50; padding-bottom: 5px;">All Users' Votes:</h2>
+        <ul style="list-style-type: none; padding-left: 0;">
+            {% for v in all_votes %}
+                <li style="padding: 8px 12px; margin-bottom: 5px; background-color: #f1f1f1; border-radius: 6px;">
+                    <strong>{{ v.user.username }}</strong> voted "<span style="color: #ff5722;">{{ v.choice.choice_text }}</span>"
+                </li>
+            {% empty %}
+                <li>No votes yet.</li>
+            {% endfor %}
+        </ul>
+
+        <h2 style="margin-top: 30px; border-bottom: 2px solid #4CAF50; padding-bottom: 5px;">Vote Counts:</h2>
+        <ul style="list-style-type: none; padding-left: 0;">
+            {% for choice, count in choice_counts.items %}
+                <li style="padding: 8px 12px; margin-bottom: 5px; background-color: #e8f5e9; border-radius: 6px;">
+                    "{{ choice }}" — <strong>{{ count }} votes</strong>
+                </li>
+            {% empty %}
+                <li>No choices available.</li>
+            {% endfor %}
+        </ul>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="{% url 'polls:index' %}" style="text-decoration: none; padding: 12px 25px; background-color: #4CAF50; color: white; border-radius: 8px; font-weight: bold; transition: background-color 0.3s;">
+                Back to Polls
+            </a>
+        </div>
+    </div>
+
 </body>
 </html>

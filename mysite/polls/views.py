@@ -4,8 +4,9 @@ from django.utils import timezone
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse
-from .models import Question, Choice
+from .models import Question, Choice, Vote
 from .forms import UserRegistrationForm
+from django.contrib.auth.decorators import login_required
 
 # ---------------------------
 # Generic Views
@@ -65,27 +66,68 @@ def logout_view(request):
 # ---------------------------
 # Voting View
 # ---------------------------
-
+@login_required(login_url='polls:login')  # Redirect to login if not authenticated
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
 
     if request.method == "POST":
-        user_vote = request.POST.get("choice")  # match the form input
-        if not user_vote:
+        choice_id = request.POST.get("choice")
+        if not choice_id:
             return HttpResponse("No vote provided.")
-        # store in session
-        request.session[f'user_vote_{question_id}'] = user_vote
-        # redirect to GET to display vote
+
+        choice = get_object_or_404(Choice, id=choice_id, question=question)
+
+        Vote.objects.update_or_create(
+            user=request.user,
+            question=question,
+            defaults={'choice': choice}
+        )
+
         return redirect('polls:vote', question_id=question_id)
 
-    # GET request → display the vote result
-    user_vote = request.session.get(f'user_vote_{question_id}')
-    if not user_vote:
+    # GET → Display vote results
+    try:
+        user_vote = Vote.objects.get(user=request.user, question=question)
+        user_choice_text = user_vote.choice.choice_text
+    except Vote.DoesNotExist:
         return HttpResponse("You haven't voted yet.")
 
-    try:
-        choice_text = Choice.objects.get(id=user_vote).choice_text
-    except Choice.DoesNotExist:
-        choice_text = "Unknown choice"
+    all_votes = Vote.objects.filter(question=question).select_related('user', 'choice')
 
-    return HttpResponse(f"You voted: {choice_text}")
+    choice_counts = {
+        c.choice_text: Vote.objects.filter(question=question, choice=c).count()
+        for c in question.choice_set.all()
+    }
+
+    context = {
+        'question': question,
+        'user_choice_text': user_choice_text,
+        'all_votes': all_votes,
+        'choice_counts': choice_counts
+    }
+
+    return render(request, 'polls/vote.html', context)
+    # GET → Display vote results
+    try:
+        user_vote = Vote.objects.get(user=request.user, question=question)
+        user_choice_text = user_vote.choice.choice_text
+    except Vote.DoesNotExist:
+        return HttpResponse("You haven't voted yet.")
+
+    # All votes for this question
+    all_votes = Vote.objects.filter(question=question).select_related('user', 'choice')
+
+    # Count votes per choice
+    choice_counts = {
+        c.choice_text: Vote.objects.filter(question=question, choice=c).count()
+        for c in question.choice_set.all()
+    }
+
+    context = {
+        'question': question,
+        'user_choice_text': user_choice_text,
+        'all_votes': all_votes,
+        'choice_counts': choice_counts
+    }
+
+    return render(request, 'polls/vote.html', context)

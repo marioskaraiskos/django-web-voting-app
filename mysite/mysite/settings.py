@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,9 +25,11 @@ SECRET_KEY = 'django-insecure-*!cvc+fy&d-13#g3!2-l8fge!%#%6ndsq-4#fk=jn=gtwld349
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['mk2002.pythonanywhere.com']
-
-
+ALLOWED_HOSTS = [
+    'mk2002.pythonanywhere.com',
+    'localhost',
+    '127.0.0.1'
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -116,7 +118,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -133,3 +135,8 @@ STATICFILES_DIRS = [
     BASE_DIR / 'polls' / 'static',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://mk2002.pythonanywhere.com'
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

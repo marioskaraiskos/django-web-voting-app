@@ -1,24 +1,124 @@
-<form method="post">
-    {% csrf_token %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Create a Poll</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; padding: 40px;">
 
-    <h3>Question</h3>
-    {{ form.as_p }}
+        <div style="max-width: 700px; margin: auto; background-color: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.1);">
+            <h1 style="text-align: center; color: #4CAF50; margin-bottom: 30px;">Create a New Poll</h1>
 
-    <h3>Choices</h3>
-    {{ formset.management_form }}
-    {% for choice_form in formset %}
-        {{ choice_form.as_p }}
-    {% endfor %}
+            <form method="post" style="display: flex; flex-direction: column; gap: 20px;" id="poll-form">
+                {% csrf_token %}
 
-    <button type="submit" style="
-        background-color: #4CAF50; 
-        color: white; 
-        border: none; 
-        padding: 10px 20px; 
+                <!-- Question Field -->
+                <div>
+                    {{ question_form.question_text.label_tag }}
+                    {{ question_form.question_text }}
+                    {% if question_form.question_text.errors %}
+                        <p style="color: red; font-size: 14px;">{{ question_form.question_text.errors }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Choices -->
+                <div id="choices-container">
+        {{ formset.management_form }}
+        {% for choice_form in formset %}
+            <div style="display: flex; align-items: center; gap: 10px;">
+                {{ choice_form.choice_text }}
+                {{ choice_form.DELETE.as_hidden }}
+                <button type="button" onclick="this.previousElementSibling.value='on'; this.parentElement.style.display='none';" 
+                    style="background: none; border: none; cursor: pointer; font-size: 20px; color: #ff5722;" 
+                    title="Delete this choice">
+                    &#128465;
+                </button>
+                {% if choice_form.choice_text.errors %}
+                    <p style="color: red; font-size: 14px;">{{ choice_form.choice_text.errors }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+                <!-- Add Choice Button -->
+                <button type="button" id="add-choice-btn" style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        border-radius: 50%;
+        font-size: 22px;
+        width: 38px;
+        height: 38px;
         cursor: pointer;
-        font-size: 16px;
-        border-radius: 5px;
-    ">
-        Create Question
+        transition: background-color 0.3s;
+    " title="Add a new choice" onmouseover="this.style.backgroundColor='#45a049'" onmouseout="this.style.backgroundColor='#4CAF50'">
+        +
     </button>
-</form>
+
+                <!-- Submit Button -->
+                <button type="submit" style="
+                    padding: 12px 25px;
+                    background-color: #4CAF50;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                " onmouseover="this.style.backgroundColor='#45a049'" onmouseout="this.style.backgroundColor='#4CAF50'">
+                    Submit Poll
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="{% url 'polls:index' %}" style="text-decoration: none; padding: 10px 20px; background-color: #4CAF50; color: white; border-radius: 8px; font-weight: bold; transition: background-color 0.3s;">
+                    Back to Polls
+                </a>
+            </div>
+        </div>
+
+        <script>
+            const addBtn = document.getElementById('add-choice-btn');
+            const choicesContainer = document.getElementById('choices-container');
+
+            // Keep track of total forms
+            const totalForms = document.getElementById('id_choice_set-TOTAL_FORMS');
+
+            addBtn.addEventListener('click', () => {
+                const currentFormCount = parseInt(totalForms.value);
+                const newFormIdx = currentFormCount;
+
+                // Clone an empty form template
+                const newChoice = document.createElement('div');
+                newChoice.classList.add('choice-row');
+                newChoice.style.display = 'flex';
+                newChoice.style.alignItems = 'center';
+                newChoice.style.gap = '10px';
+                newChoice.innerHTML = `
+    <input 
+        type="text" 
+        name="choice_set-${newFormIdx}-choice_text" 
+        id="id_choice_set-${newFormIdx}-choice_text"
+        placeholder="Type a choice…"
+        class="w-full px-4 py-3 rounded-lg border border-gray-300 
+               focus:border-green-500 focus:ring-2 focus:ring-green-200 
+               placeholder-gray-400 text-gray-800 shadow-sm transition-all"
+    >
+    <input type="hidden" name="choice_set-${newFormIdx}-DELETE" id="id_choice_set-${newFormIdx}-DELETE">
+    <button type="button" onclick="this.previousElementSibling.checked = true; this.parentElement.style.display='none';"
+        style="background: none; border: none; cursor: pointer; font-size: 20px; color: #ff5722;"
+        title="Delete this choice">&#128465;</button>
+`;
+
+                choicesContainer.appendChild(newChoice);
+
+                // Update total forms count
+                totalForms.value = newFormIdx + 1;
+            });
+        </script>
+    </body>
+    </html>

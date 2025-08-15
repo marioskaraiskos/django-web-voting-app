@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from .forms import QuestionForm
 from django.views.generic import DeleteView
 from django.urls import reverse_lazy
+from .forms import QuestionForm, ChoiceFormSet
+
 
 # ---------------------------
 # Generic Views
@@ -20,7 +22,7 @@ class IndexView(generic.ListView):
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("pk")[:5]
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("pk")
 
 class DetailView(generic.DetailView):
     model = Question
@@ -135,20 +137,52 @@ def vote(request, question_id):
 
     return render(request, 'polls/vote.html', context)
 @login_required
+@login_required
 def create_question(request):
-    if request.method == 'POST':
-        form = QuestionForm(request.POST)
-        if form.is_valid():
-            question = form.save(commit=False)
+    if request.method == "POST":
+        question_form = QuestionForm(request.POST)
+        if question_form.is_valid():
+            question = question_form.save(commit=False)
             question.author = request.user
-            question.pub_date = timezone.now()  # fix για το NOT NULL
+            question.pub_date = timezone.now()  # ← fix NOT NULL error
             question.save()
-            return redirect('polls:index')
+
+            formset = ChoiceFormSet(request.POST, instance=question)
+            if formset.is_valid():
+                formset.save()
+                return redirect('polls:index')
+        else:
+            # If formset or question form is invalid, recreate empty formset
+            formset = ChoiceFormSet(request.POST)
     else:
-        form = QuestionForm()
-    return render(request, 'polls/create_question.html', {'form': form})
+        # GET request → blank form + empty formset
+        question_form = QuestionForm()
+        # Use instance=None for new question
+        formset = ChoiceFormSet(queryset=Choice.objects.none())
+
+    return render(request, 'polls/create_question.html', {
+        'question_form': question_form,
+        'formset': formset
+    })
+
 
 class DeleteQuestionView(DeleteView):
     model = Question
     template_name = "polls/question_confirm_delete.html"  # Δημιούργησε αυτό το template
     success_url = reverse_lazy('polls:index')
+
+def question_by_index(request, index):
+    # Index must be positive
+    if index < 1:
+        return render(request, '404.html', status=404)
+
+    # Order questions however you want
+    questions = list(Question.objects.order_by('id'))  # or 'pub_date', etc.
+
+    # Get question at given position (index-1 because lists start at 0)
+    if index > len(questions):
+        return render(request, '404.html', status=404)
+
+    question = questions[index - 1]
+
+    return render(request, 'polls/detail.html', {'question': question, 'index': index})

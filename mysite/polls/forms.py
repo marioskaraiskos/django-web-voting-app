@@ -2,6 +2,10 @@
 
 from django import forms
 from django.contrib.auth.models import User
+from .models import Question, Choice
+from django.forms.models import inlineformset_factory
+
+
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -18,3 +22,13 @@ class UserRegistrationForm(forms.ModelForm):
 
         if password and confirm_password and password != confirm_password:
             raise forms.ValidationError("Passwords do not match.")
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = ['question_text']
+
+# Formset for multiple choices at once
+ChoiceFormSet = inlineformset_factory(
+    Question, Choice, fields=('choice_text',), extra=3, can_delete=False
+)

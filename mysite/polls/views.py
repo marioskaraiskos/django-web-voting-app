@@ -7,6 +7,9 @@ from django.http import HttpResponse
 from .models import Question, Choice, Vote
 from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required
+from .forms import QuestionForm
+from django.views.generic import DeleteView
+from django.urls import reverse_lazy
 
 # ---------------------------
 # Generic Views
@@ -131,3 +134,21 @@ def vote(request, question_id):
     }
 
     return render(request, 'polls/vote.html', context)
+@login_required
+def create_question(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.author = request.user
+            question.pub_date = timezone.now()  # fix για το NOT NULL
+            question.save()
+            return redirect('polls:index')
+    else:
+        form = QuestionForm()
+    return render(request, 'polls/create_question.html', {'form': form})
+
+class DeleteQuestionView(DeleteView):
+    model = Question
+    template_name = "polls/question_confirm_delete.html"  # Δημιούργησε αυτό το template
+    success_url = reverse_lazy('polls:index')
